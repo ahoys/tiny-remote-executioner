@@ -52,4 +52,5 @@ log({
   development,
   cert: process.env.CERT,
   key: process.env.KEY,
+  passphrase: process.env.PASSPHRASE !== undefined,
 });

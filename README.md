@@ -52,6 +52,18 @@ pm2 start bun --name replace_with_name -- run start
 }
 ```
 
+## Environment Variables
+
+Use .env.production to set the variables. They are all optional.
+
+| Name       | Description                               | Default     |
+| ---------- | ----------------------------------------- | ----------- |
+| HOSTNAME   | The used hostname for the service.        | "localhost" |
+| PORT       | The used port for the service.            | 3000        |
+| CERT       | Path to the cert.pem -file to enable TLS. | undefined   |
+| KEY        | Path to the key.pem -file to enable TLS.  | undefined   |
+| PASSPHRASE | Encrypt private key with this passphrase. | undefined   |
+
 ## Requirements
 
 - The machine needs to be able to run Bun. This means virtual machines using certain older CPU emulators like kvm64 may not work.
