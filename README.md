@@ -13,6 +13,10 @@ Example use-cases:
 - The expected memory footprint is about **13MB** when ran as a PM2 service.
 - Filesize about 41 MB + your scripts.
 
+## Requirements
+
+- The machine needs to be able to run Bun. This means virtual machines using certain older CPU emulators like kvm64 may not work.
+
 ## How to install & run
 
 ```bash
@@ -63,7 +67,3 @@ Use .env.production to set the variables. They are all optional.
 | CERT       | Path to the cert.pem -file to enable TLS. | undefined   |
 | KEY        | Path to the key.pem -file to enable TLS.  | undefined   |
 | PASSPHRASE | Encrypt private key with this passphrase. | undefined   |
-
-## Requirements
-
-- The machine needs to be able to run Bun. This means virtual machines using certain older CPU emulators like kvm64 may not work.
