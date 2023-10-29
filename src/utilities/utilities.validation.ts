@@ -1,8 +1,8 @@
 import { resolve } from "node:path";
 import {
-  ALLOWED_EXTENSIONS,
-  MAX_FILESIZE_IN_KB,
-  MAX_FILES_IN_REQUEST,
+  FILES_EXTENSIONS,
+  FILES_MAX_SIZE_IN_KB,
+  FILES_MAX_COUNT,
 } from "../index";
 import { log } from "./utilities.logging";
 
@@ -104,14 +104,14 @@ export const getFileErrors = (
       return "The files are not in an array.";
     }
     // Look for too many files.
-    if (files.length > MAX_FILES_IN_REQUEST) {
-      return "Too many files. The limit is " + MAX_FILES_IN_REQUEST + ".";
+    if (files.length > FILES_MAX_COUNT) {
+      return "Too many files. The limit is " + FILES_MAX_COUNT + ".";
     }
     // Look for too large files.
     const tooLargeFiles: string[] = [];
     for (const file of files) {
       if (file instanceof File) {
-        if (file.size > MAX_FILESIZE_IN_KB * 1024) {
+        if (file.size > FILES_MAX_SIZE_IN_KB * 1024) {
           tooLargeFiles.push(file.name);
         }
       }
@@ -121,7 +121,7 @@ export const getFileErrors = (
         "The following files were too large: " +
         tooLargeFiles.join(", ") +
         ". Exceeding the maximum file size of " +
-        MAX_FILESIZE_IN_KB +
+        FILES_MAX_SIZE_IN_KB +
         " KB."
       );
     }
@@ -142,7 +142,7 @@ export const getFileErrors = (
     for (const file of files) {
       if (file instanceof File) {
         const extension = file.name.split(".").pop() || "";
-        if (!extension || !ALLOWED_EXTENSIONS.includes(extension)) {
+        if (!extension || !FILES_EXTENSIONS.includes(extension)) {
           invalidExtensions.push(file.name);
         }
       }
@@ -152,7 +152,7 @@ export const getFileErrors = (
         "The following files had invalid extensions: " +
         invalidExtensions.join(", ") +
         ". Allowed extensions are: " +
-        ALLOWED_EXTENSIONS.join(", ") +
+        FILES_EXTENSIONS.join(", ") +
         "."
       );
     }

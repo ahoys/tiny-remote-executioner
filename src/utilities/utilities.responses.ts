@@ -12,5 +12,8 @@ export interface ITreResponse {
  */
 export const createResponse = (data: ITreResponse): Response => {
   const { status, ...body } = data;
+  if (process.env.QUIET !== undefined && process.env.QUIET !== "false") {
+    return new Response(null, { status });
+  }
   return new Response(JSON.stringify(body), { status });
 };

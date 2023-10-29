@@ -43,27 +43,35 @@ pm2 start bun --name replace_with_name -- run start
 
 ## How to use
 
-1. Add your script(s) to `/scripts`. Make sure to set `chmod +x` permission.
-2. Start the server (see above).
-3. Your script is now accessible. POST to `/execute` with the following JSON-body:
+1. `bun install`
+2. Add your script to `./scripts`. Make sure to set the `chmod +x` permission.
+3. Start the server `bun start`.
 
-```json
-{
-  // The full name of the script-file.
-  "script": "name_of_the_script.sh",
-  // Optional arguments as an Array.
-  "args": []
-}
-```
+Your script is now accessible via its name. Send multipart form data to `POST => http(s)://ip:port/exec`.
+
+Example: `POST => http://192.168.1.123:3000/exec`
+
+A successful response is an object that contains stdout of the script.
+
+| Key    | Type     | Description                                     |
+| ------ | -------- | ----------------------------------------------- |
+| script | string   | The script to run. E.g. "example.sh".           |
+| args   | string[] | Optional arguments (for the script) as strings. |
+| files  | File[]   | Optional files as Files.                        |
 
 ## Environment Variables
 
 Use .env.production to set the variables. They are all optional.
 
-| Name       | Description                               | Default     |
-| ---------- | ----------------------------------------- | ----------- |
-| HOSTNAME   | The used hostname for the service.        | "localhost" |
-| PORT       | The used port for the service.            | 3000        |
-| CERT       | Path to the cert.pem -file to enable TLS. | undefined   |
-| KEY        | Path to the key.pem -file to enable TLS.  | undefined   |
-| PASSPHRASE | Encrypt private key with this passphrase. | undefined   |
+| Name                 | Description                                | Default     |
+| -------------------- | ------------------------------------------ | ----------- |
+| HOSTNAME             | The used hostname for the service.         | "localhost" |
+| PORT                 | The used port for the service.             | 3000        |
+| CERT                 | Path to the cert.pem -file to enable TLS.  | ""          |
+| KEY                  | Path to the key.pem -file to enable TLS.   | ""          |
+| PASSPHRASE           | Encrypt private key with this passphrase.  | ""          |
+| QUIET                | "true" to always respond with null.        | "false"     |
+| FILES_MAX_COUNT      | Maximum amount of files in one request.    | 0           |
+| FILES_MAX_SIZE_IN_KB | Maximum size of a file in kilobytes.       | 0           |
+| FILES_EXTENSIONS     | Allowed file extensions. I.e. "jpg, png"   | ""          |
+| FILES_DIR            | The location where the files are saved to. | "./files"   |

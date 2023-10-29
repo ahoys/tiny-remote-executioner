@@ -1,8 +1,8 @@
 import { expect, test } from "bun:test";
 import {
-  ALLOWED_EXTENSIONS,
-  MAX_FILESIZE_IN_KB,
-  MAX_FILES_IN_REQUEST,
+  FILES_EXTENSIONS,
+  FILES_MAX_SIZE_IN_KB,
+  FILES_MAX_COUNT,
 } from "../../index";
 import { getFileErrors } from "../utilities.validation";
 
@@ -16,20 +16,18 @@ test("getScriptErrors - should return error if files are not in an array", () =>
 });
 
 test("getScriptErrors - should return error if too many files are passed", () => {
-  const files = new Array(MAX_FILES_IN_REQUEST + 1).fill(
-    new File([], "test.jpg")
-  );
+  const files = new Array(FILES_MAX_COUNT + 1).fill(new File([], "test.jpg"));
   expect(getFileErrors(files)).toEqual(
-    `Too many files. The limit is ${MAX_FILES_IN_REQUEST}.`
+    `Too many files. The limit is ${FILES_MAX_COUNT}.`
   );
 });
 
 test("getScriptErrors - should return error if file size is too large", () => {
   const files = [
-    new File(["a".repeat(MAX_FILESIZE_IN_KB * 1024 + 1)], "test.jpg"),
+    new File(["a".repeat(FILES_MAX_SIZE_IN_KB * 1024 + 1)], "test.jpg"),
   ];
   expect(getFileErrors(files)).toEqual(
-    `The following files were too large: test.jpg. Exceeding the maximum file size of ${MAX_FILESIZE_IN_KB} KB.`
+    `The following files were too large: test.jpg. Exceeding the maximum file size of ${FILES_MAX_SIZE_IN_KB} KB.`
   );
 });
 
@@ -41,7 +39,7 @@ test("getScriptErrors - should return error if file has no content", () => {
 test("getScriptErrors - should return error if file has invalid extension", () => {
   const files = [new File(["a"], "test.xyz")];
   expect(getFileErrors(files)).toEqual(
-    `The following files had invalid extensions: test.xyz. Allowed extensions are: ${ALLOWED_EXTENSIONS.join(
+    `The following files had invalid extensions: test.xyz. Allowed extensions are: ${FILES_EXTENSIONS.join(
       ", "
     )}.`
   );

@@ -2,11 +2,11 @@ import { execute } from "./services/service.execute";
 import { resolve } from "node:path";
 import { log } from "./utilities/utilities.logging";
 
-export const MAX_FILES_IN_REQUEST = Number(
-  process.env.MAX_FILES_IN_REQUEST || 0
+export const FILES_MAX_COUNT = Number(process.env.FILES_MAX_COUNT || 0);
+export const FILES_MAX_SIZE_IN_KB = Number(
+  process.env.FILES_MAX_SIZE_IN_KB || 0
 );
-export const MAX_FILESIZE_IN_KB = Number(process.env.MAX_FILESIZE_IN_KB || 0);
-export const ALLOWED_EXTENSIONS = (process.env.ALLOWED_EXTENSIONS || "")
+export const FILES_EXTENSIONS = (process.env.FILES_EXTENSIONS || "")
   .replace(/\s/g, "")
   .replace(/\./g, "")
   .split(",");
@@ -29,7 +29,7 @@ const server = Bun.serve({
       const parts = url.pathname.split("/");
       log(req.method, "=>", url.pathname);
       // Endpoints.
-      if (req.method === "POST" && parts[1] === "execute") {
+      if (req.method === "POST" && parts[1] === "exec") {
         return execute(req);
       }
       // Fallback.
@@ -54,11 +54,11 @@ log({
     passphrase: process.env.PASSPHRASE !== undefined,
   },
   other: {
-    MAX_FILES_IN_REQUEST,
-    MAX_FILESIZE_IN_KB: `${MAX_FILESIZE_IN_KB} KB (${Math.round(
-      MAX_FILESIZE_IN_KB / 1024
+    FILES_MAX_COUNT,
+    FILES_MAX_SIZE_IN_KB: `${FILES_MAX_SIZE_IN_KB} KB (${Math.round(
+      FILES_MAX_SIZE_IN_KB / 1024
     )} MB)`,
-    ALLOWED_EXTENSIONS,
+    FILES_EXTENSIONS,
     FILES_DIR,
   },
 });
