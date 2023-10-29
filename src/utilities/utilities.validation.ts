@@ -86,6 +86,11 @@ export const getArgsErrors = (args: FormDataEntryValue[]): string | null => {
   }
 };
 
+/**
+ * Validates the requested files.
+ * @param {FormDataEntryValue[] | null} files The files to validate.
+ * @returns {Promise<string | null>} The error string or null if passes.
+ */
 export const getFileErrors = (files: FormDataEntryValue[]): string | null => {
   try {
     // Files are optional.
