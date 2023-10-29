@@ -1,18 +1,6 @@
-import { executeFormData } from "./services/service.execute";
+import { execute } from "./services/service.execute";
 import { resolve } from "node:path";
-
-/**
- * Returns the current system time.
- * @returns {string}
- */
-const getTime = (): string => new Date().toISOString();
-
-/**
- * Writes a log message for monitoring purposes.
- * @param {unknown[]} args The arguments to log.
- */
-export const log = (...args: unknown[]): void =>
-  console.info(getTime(), ...args);
+import { log } from "./utilities/utilities.logging";
 
 export const MAX_FILES_IN_REQUEST = Number(
   process.env.MAX_FILES_IN_REQUEST || 0
@@ -42,7 +30,7 @@ const server = Bun.serve({
       log(req.method, "=>", url.pathname);
       // Endpoints.
       if (req.method === "POST" && parts[1] === "execute") {
-        return executeFormData(req);
+        return execute(req);
       }
       // Fallback.
       log(req.method, "=>", url.pathname, "is unsupported.");

@@ -1,19 +1,13 @@
 import { resolve } from "node:path";
-import {
-  ALLOWED_EXTENSIONS,
-  MAX_FILESIZE_IN_KB,
-  MAX_FILES_IN_REQUEST,
-  log,
-} from "../index";
 import { exec } from "node:child_process";
-import { access, constants } from "node:fs";
-import { saveFileToDisk } from "../utilities/utilities.files";
-import { createResponse } from "../utilities/utilities.responses";
+import { createFilesDir, saveFileToDisk } from "../utilities/utilities.files";
+import { ITreResponse, createResponse } from "../utilities/utilities.responses";
 import {
   getArgsErrors,
   getFileErrors,
   getScriptErrors,
 } from "../utilities/utilities.validation";
+import { log } from "../utilities/utilities.logging";
 
 /**
  * Will safely execute the given script with the given arguments.
@@ -21,44 +15,6 @@ import {
  * @param {Request} req The request.
  */
 export const execute = async (req: Request): Promise<Response> => {
-  try {
-    const body = await req.json();
-    const { script, args } = body;
-    // Validate arguments.
-    if (typeof script !== "string" || (args && !Array.isArray(args))) {
-      return new Response(null, { status: 400 });
-    }
-    // Find the script file.
-    const scriptFile = resolve("./scripts", script);
-    const fileExists = await Bun.file(scriptFile).exists();
-    if (!fileExists) return new Response(null, { status: 404 });
-    access(scriptFile, constants.X_OK, (err) => {
-      if (err) {
-        log(`The file ${scriptFile} cannot be executed. No permission.`);
-        return new Response(null, { status: 403 });
-      }
-    });
-    // Run the sh-script and return response.
-    const result: Response = await new Promise((resolve, reject) => {
-      exec(
-        `${scriptFile} ${(args || []).join(" ")}`,
-        (error, stdout, stderr) => {
-          if (error || stderr) {
-            log(error || stderr);
-            reject(new Response(null, { status: 500 }));
-          }
-          resolve(new Response(stdout, { status: 200 }));
-        }
-      );
-    });
-    return result;
-  } catch (error) {
-    log(error);
-    return new Response(null, { status: 500 });
-  }
-};
-
-export const executeFormData = async (req: Request): Promise<Response> => {
   try {
     const formData = await req.formData();
     // Validate the script.
@@ -88,6 +44,8 @@ export const executeFormData = async (req: Request): Promise<Response> => {
         status: 400,
       });
     }
+    // Make sure files directory exists.
+    await createFilesDir();
     // Save files.
     const filePromises: Promise<{ name: string; size: number }>[] = [];
     for (const file of files) {
@@ -105,11 +63,51 @@ export const executeFormData = async (req: Request): Promise<Response> => {
         status: 500,
       });
     }
-    // const numbers = filePromises as number[];
-    // const combinedSize = (filePromises as number[]).reduce((a, b) => a + b, 0);
-    return new Response(null, { status: 200 });
+    // Find the script file.
+    const scriptFile = resolve("./scripts", script?.toString() || "");
+    const fileExists = await Bun.file(scriptFile).exists();
+    if (!fileExists)
+      return createResponse({
+        error: "The script " + scriptFile + " does not exist.",
+        status: 400,
+      });
+    // Run the sh-script and return result.
+    const result = await new Promise<ITreResponse>(
+      (
+        resolve: (value: ITreResponse) => void,
+        reject: (reason: ITreResponse) => void
+      ) => {
+        exec(
+          `${scriptFile} ${(args || []).join(" ")}`,
+          (error, stdout, stderr) => {
+            if (error || stderr) {
+              return reject({
+                error:
+                  "Failed to run the script. " +
+                  "Make sure the permissions are correct.",
+                stdout,
+                stderr,
+                status: 500,
+              });
+            } else {
+              return resolve({
+                stdout,
+                status: 200,
+              });
+            }
+          }
+        );
+      }
+    );
+    return createResponse(result);
   } catch (error) {
     log(error);
-    return new Response(null, { status: 500 });
+    return createResponse({
+      error:
+        typeof (error as ITreResponse)?.error === "string"
+          ? (error as ITreResponse).error
+          : "",
+      status: 500,
+    });
   }
 };

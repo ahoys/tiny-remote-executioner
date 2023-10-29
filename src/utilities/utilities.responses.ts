@@ -1,4 +1,4 @@
-interface ITreResponse {
+export interface ITreResponse {
   error?: string;
   stdout?: string;
   stderr?: string;
@@ -10,5 +10,7 @@ interface ITreResponse {
  * @param data The data to send.
  * @returns {Response} The response.
  */
-export const createResponse = (data: ITreResponse): Response =>
-  new Response(JSON.stringify(data), { status: data.status });
+export const createResponse = (data: ITreResponse): Response => {
+  const { status, ...body } = data;
+  return new Response(JSON.stringify(body), { status });
+};

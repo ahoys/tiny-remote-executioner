@@ -3,8 +3,10 @@ import {
   ALLOWED_EXTENSIONS,
   MAX_FILESIZE_IN_KB,
   MAX_FILES_IN_REQUEST,
-  log,
 } from "../index";
+import { log } from "./utilities.logging";
+
+const scriptNameRegex = /^[a-zA-Z0-9-_. ]+$/;
 
 /**
  * Validates the requested script.
@@ -21,7 +23,21 @@ export const getScriptErrors = async (
     if (script.length > 128) {
       return "The name of the script is too long.";
     }
+    if (
+      !scriptNameRegex.test(script) ||
+      script.trim() !== script ||
+      script.includes("..") ||
+      script.startsWith("-") ||
+      script.endsWith("-") ||
+      script.startsWith(".") ||
+      script.endsWith(".")
+    ) {
+      return "The script has illegal characters.";
+    }
     const scriptFile = resolve("./scripts", script);
+    if (scriptFile.indexOf(resolve("./scripts")) !== 0) {
+      return "The script is outside of the scripts folder.";
+    }
     const fileExists = await Bun.file(scriptFile).exists();
     if (!fileExists) {
       return 'The script "' + script + '" does not exist.';
@@ -29,7 +45,7 @@ export const getScriptErrors = async (
     return null;
   } catch (error) {
     log(error);
-    return null;
+    return "Failed to validate script.";
   }
 };
 
@@ -66,7 +82,7 @@ export const getArgsErrors = (args: FormDataEntryValue[]): string | null => {
     return null;
   } catch (error) {
     log(error);
-    return null;
+    return "Failed to validate args.";
   }
 };
 
@@ -136,6 +152,6 @@ export const getFileErrors = (files: FormDataEntryValue[]): string | null => {
     return null;
   } catch (error) {
     log(error);
-    return null;
+    return "Failed to validate files.";
   }
 };
