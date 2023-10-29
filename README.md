@@ -11,7 +11,7 @@ TRE is a lightweight Bun-application that allows you to expose scripts for other
 ## Performance
 
 - TRE has a memory footprint of approximately **13MB** when run as a PM2 service.
-- The total file size is about 41MB, excluding your scripts.
+- The total installation file size is less than 50MB, excluding your scripts.
 
 ## Requirements
 
