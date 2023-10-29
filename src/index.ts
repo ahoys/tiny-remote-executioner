@@ -1,4 +1,5 @@
-import { execute } from "./services/service.execute";
+import { executeFormData } from "./services/service.execute";
+import { resolve } from "node:path";
 
 /**
  * Returns the current system time.
@@ -12,6 +13,16 @@ const getTime = (): string => new Date().toISOString();
  */
 export const log = (...args: unknown[]): void =>
   console.info(getTime(), ...args);
+
+export const MAX_FILES_IN_REQUEST = Number(
+  process.env.MAX_FILES_IN_REQUEST || 0
+);
+export const MAX_FILESIZE_IN_KB = Number(process.env.MAX_FILESIZE_IN_KB || 0);
+export const ALLOWED_EXTENSIONS = (process.env.ALLOWED_EXTENSIONS || "")
+  .replace(/\s/g, "")
+  .replace(/\./g, "")
+  .split(",");
+export const FILES_DIR = resolve(process.env.FILES_DIR || "./files");
 
 /**
  * Starts the server.
@@ -31,7 +42,7 @@ const server = Bun.serve({
       log(req.method, "=>", url.pathname);
       // Endpoints.
       if (req.method === "POST" && parts[1] === "execute") {
-        return execute(req);
+        return executeFormData(req);
       }
       // Fallback.
       log(req.method, "=>", url.pathname, "is unsupported.");
@@ -46,10 +57,20 @@ const server = Bun.serve({
 const { hostname, port, development } = server;
 
 log({
-  hostname,
-  port,
-  development,
-  cert: process.env.CERT,
-  key: process.env.KEY,
-  passphrase: process.env.PASSPHRASE !== undefined,
+  server: {
+    hostname,
+    port,
+    development,
+    cert: process.env.CERT,
+    key: process.env.KEY,
+    passphrase: process.env.PASSPHRASE !== undefined,
+  },
+  other: {
+    MAX_FILES_IN_REQUEST,
+    MAX_FILESIZE_IN_KB: `${MAX_FILESIZE_IN_KB} KB (${Math.round(
+      MAX_FILESIZE_IN_KB / 1024
+    )} MB)`,
+    ALLOWED_EXTENSIONS,
+    FILES_DIR,
+  },
 });
