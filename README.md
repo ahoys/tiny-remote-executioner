@@ -51,7 +51,7 @@ Your script is now accessible via its name. Send multipart form data to `POST =>
 
 Example: `POST => http://192.168.1.123:3000/exec`
 
-A successful response is an object that contains stdout of the script.
+See environment variable "VERBOSE" to return stdout of the script. Otherwise only status code is returned.
 
 | Key    | Type     | Description                                     |
 | ------ | -------- | ----------------------------------------------- |
@@ -70,7 +70,7 @@ Use .env.production to set the variables. They are all optional.
 | CERT                 | Path to the cert.pem -file to enable TLS.  | ""          |
 | KEY                  | Path to the key.pem -file to enable TLS.   | ""          |
 | PASSPHRASE           | Encrypt private key with this passphrase.  | ""          |
-| QUIET                | "true" to always respond with null.        | "false"     |
+| VERBOSE              | true to respond with stdout.               | false       |
 | FILES_MAX_COUNT      | Maximum amount of files in one request.    | 0           |
 | FILES_MAX_SIZE_IN_KB | Maximum size of a file in kilobytes.       | 0           |
 | FILES_EXTENSIONS     | Allowed file extensions. I.e. "jpg, png"   | ""          |
