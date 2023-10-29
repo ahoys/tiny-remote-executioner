@@ -1,5 +1,5 @@
 #!/bin/bash
 
-echo "You can run this with command 'example'"
+echo "You can run this with script 'example.sh'"
 
 exit 0
