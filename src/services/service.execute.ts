@@ -37,7 +37,7 @@ export const execute = async (req: Request): Promise<Response> => {
     }
     // Validate the files.
     const files = formData.getAll("files");
-    const fileValidationError = getFileErrors(files);
+    const fileValidationError = await getFileErrors(files);
     if (fileValidationError) {
       return createResponse({
         error: fileValidationError,

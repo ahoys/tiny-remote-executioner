@@ -1,3 +1,4 @@
+import { fileTypeFromBlob } from "file-type";
 import { resolve } from "node:path";
 import {
   FILES_EXTENSIONS,
@@ -52,7 +53,7 @@ export const getScriptErrors = async (
 /**
  * Validates the requested arguments.
  * @param {FormDataEntryValue[] | null} args The args to validate.
- * @returns {Promise<string | null>} The error string or null if passes.
+ * @returns {string | null} The error string or null if passes.
  */
 export const getArgsErrors = (
   args: FormDataEntryValue[] | undefined
@@ -93,9 +94,9 @@ export const getArgsErrors = (
  * @param {FormDataEntryValue[] | null} files The files to validate.
  * @returns {Promise<string | null>} The error string or null if passes.
  */
-export const getFileErrors = (
+export const getFileErrors = async (
   files: FormDataEntryValue[] | undefined
-): string | null => {
+): Promise<string | null> => {
   try {
     // Files are optional.
     if (!files) return null;
@@ -141,8 +142,21 @@ export const getFileErrors = (
     const invalidExtensions: string[] = [];
     for (const file of files) {
       if (file instanceof File) {
-        const extension = file.name.split(".").pop() || "";
-        if (!extension || !FILES_EXTENSIONS.includes(extension)) {
+        // Check the file type.
+        const blob = file.slice(0, 4100);
+        const fileType = await fileTypeFromBlob(blob);
+        if (fileType) {
+          const extension = fileType.ext;
+          const extensionName = file.name.split(".").pop() || "";
+          if (
+            !extension ||
+            !extensionName ||
+            !FILES_EXTENSIONS.includes(extensionName) ||
+            !FILES_EXTENSIONS.includes(extension)
+          ) {
+            invalidExtensions.push(file.name);
+          }
+        } else {
           invalidExtensions.push(file.name);
         }
       }
