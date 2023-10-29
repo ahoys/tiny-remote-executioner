@@ -31,7 +31,6 @@ const server = Bun.serve({
       log(req.method, "=>", url.pathname);
       // Endpoints.
       if (req.method === "POST" && parts[1] === "execute") {
-        // Add body.
         return execute(req);
       }
       // Fallback.
