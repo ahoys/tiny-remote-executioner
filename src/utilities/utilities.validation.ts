@@ -54,7 +54,9 @@ export const getScriptErrors = async (
  * @param {FormDataEntryValue[] | null} args The args to validate.
  * @returns {Promise<string | null>} The error string or null if passes.
  */
-export const getArgsErrors = (args: FormDataEntryValue[]): string | null => {
+export const getArgsErrors = (
+  args: FormDataEntryValue[] | undefined
+): string | null => {
   try {
     // Args are optional.
     if (!args) return null;
@@ -91,7 +93,9 @@ export const getArgsErrors = (args: FormDataEntryValue[]): string | null => {
  * @param {FormDataEntryValue[] | null} files The files to validate.
  * @returns {Promise<string | null>} The error string or null if passes.
  */
-export const getFileErrors = (files: FormDataEntryValue[]): string | null => {
+export const getFileErrors = (
+  files: FormDataEntryValue[] | undefined
+): string | null => {
   try {
     // Files are optional.
     if (!files) return null;
@@ -122,18 +126,16 @@ export const getFileErrors = (files: FormDataEntryValue[]): string | null => {
       );
     }
     // Look for files with no content.
-    const noContentFiles: string[] = [];
+    const noContentFiles: File[] = [];
     for (const file of files) {
       if (file instanceof File) {
         if (file.size === 0) {
-          noContentFiles.push(file.name);
+          noContentFiles.push(file);
         }
       }
     }
     if (noContentFiles.length) {
-      return (
-        "The following files had no content: " + noContentFiles.join(", ") + "."
-      );
+      return "Some files had no content.";
     }
     // Look for files with invalid extensions.
     const invalidExtensions: string[] = [];
